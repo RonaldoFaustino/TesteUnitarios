@@ -32,6 +32,6 @@ public class          LocacaoService {
 
 		//Cenario
 		LocacaoService service = new LocacaoService();
-		Usuario usuario = new Usuario()
+		Usuario usuario = new Usuario();
 	}
 }
