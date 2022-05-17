@@ -14,7 +14,7 @@ public class Filme {
 		this.precoLocacao = precoLocacao;
 	}
 	
-	public String getNome() {
+	public String getNome(){
 		return nome;
 	}
 	public void setNome(String nome) {
