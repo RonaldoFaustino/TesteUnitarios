@@ -1,7 +1,7 @@
 package br.ce.wcaquino.servicos;
 
-import br.ce.aquino.matchers.DiaSemanaMachers;
-import br.ce.aquino.matchers.MatchersProprios;
+import br.ce.wcaquino.matchers.DiaSemanaMachers;
+import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -17,8 +17,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static br.ce.aquino.matchers.MatchersProprios.ehHoje;
-import static br.ce.aquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 

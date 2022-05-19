@@ -1,4 +1,4 @@
-package br.ce.aquino.matchers;
+package br.ce.wcaquino.matchers;
 
 import br.ce.wcaquino.utils.DataUtils;
 import org.hamcrest.Description;
