@@ -1,5 +1,7 @@
 package br.ce.wcaquino.servicos;
 
+import br.ce.aquino.matchers.DiaSemanaMachers;
+import br.ce.aquino.matchers.MatchersProprios;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -8,16 +10,15 @@ import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
-
 import org.junit.rules.ErrorCollector;
 
-
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static br.ce.aquino.matchers.MatchersProprios.ehHoje;
+import static br.ce.aquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 
@@ -74,6 +75,8 @@ public class LocacaoServiceTest {
 
             error.checkThat(locacao.getValor(), CoreMatchers.is(5.00));
             error.checkThat(locacao.getValor(), CoreMatchers.is(not(6.00)));
+            error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDeDias(1));
+            error.checkThat(locacao.getDataLocacao(), ehHoje());
 
     }
 
@@ -198,7 +201,9 @@ public class LocacaoServiceTest {
         //verificacao
         boolean ehSegunda = DataUtils.verificarDiaSemana(retorno.getDataRetorno(), Calendar.MONDAY);
         Assert.assertTrue(ehSegunda);
-        //Assert.assertThat(retorno.getDataRetorno(), caiEm(Calendar.MONDAY));
-        //Assert.assertThat(retorno.getDataRetorno(), caiEm(Calendar.MONDAY));
+        Assert.assertThat(retorno.getDataRetorno(), new DiaSemanaMachers(Calendar.MONDAY));
+        Assert.assertThat(retorno.getDataRetorno(), MatchersProprios.caiEm(Calendar.MONDAY));
+        Assert.assertThat(retorno.getDataRetorno(), MatchersProprios.caiNumaSegunda());
+
     }
 }
