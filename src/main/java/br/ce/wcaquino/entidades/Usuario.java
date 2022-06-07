@@ -32,4 +32,11 @@ public class Usuario {
 	public int hashCode() {
 		return nome != null ? nome.hashCode() : 0;
 	}
+
+	@Override
+	public String toString() {
+		return "Usuario{" +
+				"nome='" + nome + '\'' +
+				'}';
+	}
 }

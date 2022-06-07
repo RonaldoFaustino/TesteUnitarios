@@ -1,7 +1,10 @@
 package br.ce.wcaquino.servicos;
 
 import br.ce.wcaquino.builders.FilmeBuilder;
+import br.ce.wcaquino.builders.LocacaoBuilder;
 import br.ce.wcaquino.builders.UsuarioBuilder;
+import br.ce.wcaquino.daos.LocacaoDAO;
+import br.ce.wcaquino.daos.LocacaoDAOFake;
 import br.ce.wcaquino.matchers.DiaSemanaMachers;
 import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.entidades.Filme;
@@ -14,6 +17,9 @@ import buildermaster.BuilderMaster;
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,14 +34,26 @@ import static org.hamcrest.CoreMatchers.not;
 public class LocacaoServiceTest {
 
     private LocacaoService service;
+    private LocacaoDAO dao;
+    private SPCService spc;
+    private EmailService email;
 
     @Rule
     public ErrorCollector error = new ErrorCollector();
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setup(){
         System.out.println("Before");
         service = new LocacaoService();
+        dao = Mockito.mock(LocacaoDAO.class);
+        service.setLocacaoDAO(dao);
+        spc = Mockito.mock(SPCService.class);
+        service.setSpcService(spc);
+        email = Mockito.mock(EmailService.class);
+        service.setEmailService(email);
     }
 
     @After
@@ -209,6 +227,57 @@ public class LocacaoServiceTest {
         Assert.assertThat(retorno.getDataRetorno(), MatchersProprios.caiEm(Calendar.MONDAY));
         Assert.assertThat(retorno.getDataRetorno(), MatchersProprios.caiNumaSegunda());
 
+    }
+    @Test
+    public void napDeveLugarFilneParaNegativado() throws FilmeSemEstoqueException {
+        //cenario
+        Usuario usuario = UsuarioBuilder.umUsuario().agora();
+        Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("Usuario 2").agora();
+        List<Filme> filmes = Arrays.asList(FilmeBuilder.umFilme().agora());
+
+        //Mockito.when(spc.possuiNegativacao(usuario)).thenReturn(true);
+        Mockito.when(spc.possuiNegativacao(Mockito.any(Usuario.class))).thenReturn(true);
+//        exception.expect(LocadoraException.class);
+//        exception.expectMessage("Usuário Negativado");
+
+        //ação
+        try {
+            service.alugarFilme(usuario,filmes);
+            //verificacao
+            Assert.fail();
+        } catch (LocadoraException e) {
+           Assert.assertThat(e.getMessage(), is("Usuário Negativado"));
+        }
+        Mockito.verify(spc).possuiNegativacao(usuario);
+
+    }
+
+    @Test
+    public void deveEnviarEmailParaLocacaoAtrasadas(){
+        //cenario
+        Usuario usuario = UsuarioBuilder.umUsuario().agora();
+        Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("Usuario em dia").agora();
+        Usuario usuario3 = UsuarioBuilder.umUsuario().comNome("Usuario atrasado").agora();
+        List<Locacao> locaoes = Arrays.asList(
+                LocacaoBuilder.umLocacao()
+                        .comUsuario(usuario)
+                        .atrasado()
+                        .agora(),
+                LocacaoBuilder.umLocacao().comUsuario(usuario2).agora(),
+                LocacaoBuilder.umLocacao().atrasado().comUsuario(usuario3).agora(),
+                LocacaoBuilder.umLocacao().atrasado().comUsuario(usuario3).agora());
+        Mockito.when(dao.obterLocacoesPendentes()).thenReturn(locaoes);
+
+        //acao
+        service.notificarAtrasos();
+
+        //verificacao
+        Mockito.verify(email, Mockito.times(3)).notificarAtraso(Mockito.any(Usuario.class));
+        Mockito.verify(email).notificarAtraso(usuario);
+        Mockito.verify(email, Mockito.atLeastOnce()).notificarAtraso(usuario3);
+        Mockito.verify(email, Mockito.never()).notificarAtraso(usuario2);
+        Mockito.verifyNoMoreInteractions(email);
+        Mockito.verifyNoMoreInteractions(spc);
     }
 
     public static void main (String[] args){
