@@ -18,10 +18,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -297,6 +294,25 @@ public class LocacaoServiceTest {
         service.alugarFilme(usuario,filmes);
 
         //verificacao
+    }
+
+    @Test
+    public void deveProrrogarUmaLocacao(){
+        //cenario
+        Locacao locacao = LocacaoBuilder.umLocacao().agora();
+
+        //Acao
+        service.prorrogarLocacao(locacao,3);
+
+        //verificacao
+        ArgumentCaptor<Locacao> argCapt = ArgumentCaptor.forClass(Locacao.class);
+        Mockito.verify(dao).salvar(argCapt.capture());
+        Locacao locacaoRetomada = argCapt.getValue();
+
+        error.checkThat(locacaoRetomada.getValor(),is(12.0));
+        error.checkThat(locacaoRetomada.getDataLocacao(),is(ehHoje()));
+        error.checkThat(locacaoRetomada.getDataRetorno(),is(ehHojeComDiferencaDeDias(3)));
+
     }
 
     public static void main (String[] args){
