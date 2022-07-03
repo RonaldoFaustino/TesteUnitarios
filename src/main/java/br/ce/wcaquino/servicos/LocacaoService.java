@@ -32,7 +32,7 @@ public class LocacaoService {
 
 		for(Filme filme:filmes) {
 			if (filme.getEstoque() == 0) {
-				throw new FilmeSemEstoqueException();
+				throw new FilmeSemEstoqueException("Filme sem estoque");
 			}
 		}
 
